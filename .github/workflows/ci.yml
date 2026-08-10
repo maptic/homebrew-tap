@@ -61,8 +61,9 @@ jobs:
           set -euo pipefail
           # "maptic/homebrew-tap" is addressed as "maptic/tap" by Homebrew.
           tap="${GITHUB_REPOSITORY/\/homebrew-//}"
-          cd "$(brew --repository "$tap")"
-          casks=$(find Casks -name '*.rb' -exec basename {} .rb \; | sed "s|^|$tap/|")
-          [[ -n "$casks" ]] || { echo "No casks to audit."; exit 0; }
+          cd "$(brew --repository "${tap}")"
+          [[ -d Casks ]] || { echo "No casks to audit."; exit 0; }
+          casks=$(find Casks -name '*.rb' -exec basename {} .rb \; | sed "s|^|${tap}/|")
+          [[ -n "${casks}" ]] || { echo "No casks to audit."; exit 0; }
           # shellcheck disable=SC2086
           brew audit --cask --online --strict $casks
