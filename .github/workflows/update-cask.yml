@@ -40,7 +40,7 @@ jobs:
       CASK: ${{ inputs.cask || github.event.client_payload.cask }}
       VERSION: ${{ inputs.version || github.event.client_payload.version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # The payload comes from another repository, so it is validated before it
       # ever reaches a file path or a shell expansion.
