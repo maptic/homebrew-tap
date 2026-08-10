@@ -64,7 +64,7 @@ maptic/mounty                                   maptic/homebrew-tap
 conventional commits
       │
       ▼
-release-please ──► GitHub Release (vX.Y.Z)
+release-please ──► GitHub Release (X.Y.Z)
       │
       ▼
 release build ──► signed DMG + sha256 asset
