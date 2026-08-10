@@ -1,0 +1,103 @@
+name: Update cask
+
+# Bumps a cask to a newly published upstream release.
+#
+# Normally fired by the source repository (e.g. maptic/mounty) right after its
+# release workflow uploaded the artifacts, via:
+#
+#   POST /repos/maptic/homebrew-tap/dispatches
+#   { "event_type": "cask-release",
+#     "client_payload": { "cask": "mounty", "version": "1.2.1" } }
+#
+# The dispatch carries no checksum: the download URL is rendered from the cask
+# itself and the sha256 is computed here, so the tap always attests the bytes it
+# actually publishes.
+on:
+  repository_dispatch:
+    types: [cask-release]
+  workflow_dispatch:
+    inputs:
+      cask:
+        description: Cask token (file name in Casks/ without .rb)
+        required: true
+        type: string
+      version:
+        description: New version, without a leading "v"
+        required: true
+        type: string
+
+concurrency:
+  group: update-cask
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    env:
+      CASK: ${{ inputs.cask || github.event.client_payload.cask }}
+      VERSION: ${{ inputs.version || github.event.client_payload.version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      # The payload comes from another repository, so it is validated before it
+      # ever reaches a file path or a shell expansion.
+      - name: Validate payload
+        run: |
+          set -euo pipefail
+          [[ "$CASK" =~ ^[a-z0-9][a-z0-9-]*$ ]] \
+            || { echo "::error::invalid cask token: '$CASK'"; exit 1; }
+          [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)*([.-][0-9A-Za-z.]+)?$ ]] \
+            || { echo "::error::invalid version: '$VERSION'"; exit 1; }
+          [[ -f "Casks/$CASK.rb" ]] \
+            || { echo "::error::Casks/$CASK.rb does not exist"; exit 1; }
+
+      - name: Resolve download URL
+        id: url
+        run: |
+          set -euo pipefail
+          template=$(sed -nE 's/^[[:space:]]*url "([^"]+)".*/\1/p' "Casks/$CASK.rb" | head -n1)
+          [[ -n "$template" ]] || { echo "::error::no url stanza in Casks/$CASK.rb"; exit 1; }
+          echo "url=${template//\#\{version\}/$VERSION}" >> "$GITHUB_OUTPUT"
+
+      # A release asset can lag a few seconds behind the dispatch, so the
+      # download is retried before the run is called a failure.
+      - name: Download asset and compute sha256
+        id: sha
+        env:
+          URL: ${{ steps.url.outputs.url }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error \
+            --retry 6 --retry-delay 10 --retry-all-errors \
+            --output asset "$URL"
+          echo "sha256=$(sha256sum asset | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          rm -f asset
+
+      - name: Rewrite cask
+        env:
+          SHA256: ${{ steps.sha.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          sed -i -E \
+            -e "s/^([[:space:]]*version )\"[^\"]*\"/\1\"$VERSION\"/" \
+            -e "s/^([[:space:]]*sha256 )\"[^\"]*\"/\1\"$SHA256\"/" \
+            "Casks/$CASK.rb"
+          git diff --stat -- "Casks/$CASK.rb"
+
+      - name: Commit and push
+        env:
+          URL: ${{ steps.url.outputs.url }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- "Casks/$CASK.rb"; then
+            echo "::notice::$CASK is already at $VERSION — nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "Casks/$CASK.rb"
+          git commit -m "chore($CASK): update cask to $VERSION" -m "Source: $URL"
+          git push
