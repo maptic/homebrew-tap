@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# maptic/homebrew-tap pre-commit hook:
+#   Run `brew style` over staged casks so CI never fails on formatting alone.
+#   Skipped when Homebrew is unavailable.
+# Install with: ./scripts/install-hooks.sh
+#
+set -eu
+
+command -v brew >/dev/null 2>&1 || exit 0
+
+staged=$(git diff --cached --name-only --diff-filter=ACM -- 'Casks/*.rb')
+[ -n "$staged" ] || exit 0
+
+# shellcheck disable=SC2086
+if ! brew style $staged; then
+    echo "✖ pre-commit: brew style failed. Fix with: brew style --fix $staged" >&2
+    exit 1
+fi

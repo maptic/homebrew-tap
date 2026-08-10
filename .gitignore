@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Downloaded release assets (the update workflow fetches these to checksum them)
+*.dmg
+*.pkg
+*.zip
+asset
