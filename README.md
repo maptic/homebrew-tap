@@ -35,6 +35,14 @@ tap "maptic/tap"
 cask "mounty"
 ```
 
+> [!NOTE]
+> Homebrew asks you to trust a third-party tap before it loads anything from it. In a script or CI
+> run, where there is nobody to answer the prompt, trust it up front:
+>
+> ```sh
+> brew trust --tap maptic/tap
+> ```
+
 ## What's in here
 
 | Cask                            | Description                                                        |
