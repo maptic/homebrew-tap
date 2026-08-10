@@ -43,7 +43,10 @@ Hand edits are for everything else: `desc`, `depends_on`, `zap`, `livecheck`, ne
 
 ## Adding a cask
 
-1. Create `Casks/<token>.rb`. The token is lowercase, hyphenated, and matches the file name.
+1. Create `Casks/<token>.rb`. The token is lowercase, hyphenated, and matches the file name. Check
+   `brew info --cask <token>` first: if `homebrew/cask` already owns that token, the tap's cask is
+   only reachable fully qualified (`maptic/tap/<token>`), and every doc and Brewfile entry must say
+   so — `mounty` is exactly this case.
 2. Stanza order (rubocop-cask enforces it): `version`, `sha256`, `url`, `name`, `desc`, `homepage`,
    `livecheck`, `depends_on`, `app`, `uninstall`, `zap`.
 3. The `url` **must** interpolate `#{version}` — the update workflow relies on that template.

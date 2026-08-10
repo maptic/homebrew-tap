@@ -12,27 +12,26 @@
 ## Install
 
 ```sh
-brew tap maptic/tap
-brew install --cask mounty
-```
-
-Or in one step, without tapping first:
-
-```sh
 brew install --cask maptic/tap/mounty
 ```
 
 Upgrading follows the usual Homebrew flow:
 
 ```sh
-brew upgrade --cask mounty
+brew upgrade --cask maptic/tap/mounty
 ```
+
+> [!IMPORTANT]
+> **Always use the full `maptic/tap/mounty` token.** `mounty` on its own is
+> [Mounty for NTFS](https://formulae.brew.sh/cask/mounty) in `homebrew/cask` — an unrelated app that
+> happens to share the name. Homebrew resolves unqualified tokens to the official taps first, so
+> `brew install --cask mounty` installs that one instead.
 
 ### Brewfile
 
 ```ruby
 tap "maptic/tap"
-cask "mounty"
+cask "maptic/tap/mounty"
 ```
 
 > [!NOTE]
