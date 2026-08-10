@@ -22,10 +22,8 @@ brew upgrade --cask maptic/tap/mounty
 ```
 
 > [!IMPORTANT]
-> **Always use the full `maptic/tap/mounty` token.** `mounty` on its own is
-> [Mounty for NTFS](https://formulae.brew.sh/cask/mounty) in `homebrew/cask` — an unrelated app that
-> happens to share the name. Homebrew resolves unqualified tokens to the official taps first, so
-> `brew install --cask mounty` installs that one instead.
+> **Always use the full `maptic/tap/mounty` token.** Homebrew resolves unqualified tokens to the
+> official taps first, so the bare `mounty` does not reach this tap.
 
 ### Brewfile
 
