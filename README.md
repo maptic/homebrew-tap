@@ -42,6 +42,16 @@ cask "maptic/tap/mounty"
 > brew trust --tap maptic/tap
 > ```
 
+### First launch
+
+Until a cask's app ships notarized, macOS refuses the first launch with *"could not verify … is free
+of malware"*. Open the app, dismiss the warning, then approve it once under **System Settings →
+Privacy & Security → Open Anyway**. Homebrew re-applies the quarantine flag on upgrade but carries
+your approval forward, so this is a one-time step per app.
+
+Apple removed the old right-click → Open shortcut in macOS 15, and Homebrew 6 no longer accepts
+`--no-quarantine`, so there is no way to skip the approval from the command line.
+
 ## What's in here
 
 | Cask                            | Description                                                        |
