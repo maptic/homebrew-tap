@@ -1,6 +1,6 @@
 cask "mounty" do
-  version "1.2.1"
-  sha256 "269ba1e5501c8dc9064be2e271848c9ab7b6eacfccf306ba2ef6057798e9cff7"
+  version "1.2.2"
+  sha256 "f8ca3fce406ffb26a0de311a21c75876f4d3613f2a199b91a546bacc0f0c7c47"
 
   url "https://github.com/maptic/mounty/releases/download/#{version}/Mounty-#{version}.dmg"
   name "Mounty"
